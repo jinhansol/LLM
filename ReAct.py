@@ -81,21 +81,126 @@ client = OpenAI(
 # print(response)
 # print(response.choices[0].message.content)
 
-response = client.images.generate(
-    model="dall-e-3",
-    prompt="A cute baby dog",
-    n=1,
-    size="512x512",
-    quality="standard"
-)
+# from ollama import generate
+# from IPython.display import Image, display
 
-image_url = response.data[0].url
+# image = generate(
+#     model='llava:13b',
+#     prompt = 'A cute baby dog',
+#     max_tokens=1024
+# )
 
-import requests
+# with open('output.png', 'wb') as f:
+#     f.write(image)
 
-image = requests.get(image_url).content
+# display(Image(filename='output.png'))
 
-from IPython.display import Image
+# #출력을 문자열로 변환하기 위한 출력 분석기
+# from langchain_core.output_parsers import StrOutputParser
+# #대화 프롬프트 템플릿을 생성하기 위한 모듈
+# from langchain_core.prompts import ChatPromptTemplate
 
-Image(image)
+# #프롬프트 템플릿 생성
+# prompt = ChatPromptTemplate.from_template( "{topic}에 대한 이야기를 들려주세요.")
 
+#Ollama Llma 3모델 객체 생성
+model = Ollama(model="llama3", temperature=0.1)
+
+# #출력 파서 초기화
+# output_parser = StrOutputParser()
+
+# #체인 연결
+# chain = prompt | model | output_parser
+
+# #실행
+# message = chain.invoke({"topic": "수선화"})
+# print(message)
+
+# #프롬프트 템플릿 설정
+# from langchain.prompts import PromptTemplate
+
+# prompt = PromptTemplate.from_template("{flower}의 꽃말은?")
+
+# #출력 분석기 설정
+# from langchain.schema.output_parser import StrOutputParser
+
+# output_parser = StrOutputParser()
+
+# #연쇄 구성
+# chain = prompt | model | output_parser
+
+# #연쇄를 실행하고 결과를 출력력
+# result = chain.invoke({"flower": "라일락"})
+
+# print(result)
+
+# #'꽃말의 비밀 정원 이야기' 문서 적재
+# from llama_index.core import SimpleDirectoryReader
+
+# documents = SimpleDirectoryReader("./data").load_data()
+
+# #Ollama LLM 및 임베딩 모델 지정
+# from llama_index.embeddings.ollama import OllamaEmbedding
+# embed_model = OllamaEmbedding(model_name="llama3")
+
+# # #문서의 색인 생성
+# # from llama_index.core import VectorStoreIndex
+# # index = VectorStoreIndex.from_documents(documents, embed_model=embed_model)
+
+# #요청 엔진 생성
+# agent = index.as_query_engine(llm=llm)
+
+# # #요청 예제
+# # response = agent.query("꽃말의 비밀 정원의 직원에게는 몇 가지 역할이 있나요?")
+# # print("꽃말의 비밀 정원의 직원들에게는 몇 가지 역할이 있나요?", response)
+# # response = agent.query("꽃말의 비밀 정원의 에이전트 이름은 무엇인가요?")
+# # print("꽃말의 비밀 정원의 에이전트 이름은 무엇인가요?", response)
+
+# #색인을 로컬에 저장
+# index.storage_context.persist()
+
+import ollama
+
+# #시스템 프롬프트(역할 지시시)
+# system_prompt = "당신은 저에게 꽃의 가격을 계산해줄 수 있습니다. 필요한 경우 코드를 작성해 설명해 주세요."
+
+# #사용자 질문
+# user_message = "장미 10송이의 가격을 계산해줘."
+
+# #Ollama3 모델로 대화 요청
+# response = ollama.chat(
+#     model="llama3",
+#     messages=[
+#         {"role": "system", "content": system_prompt},
+#         {"role": "user", "content": user_message},
+#     ],
+# )
+
+# print(response["message"]["content"])
+
+#설치된 모델 목록 가져오기
+models = ollama.list()
+print(models)
+
+# #모델에 프롬프트 보내기 예시
+# response = ollama.chat(
+#     model="llama3",
+#     messages=[
+#         {"role": "user", "content": "Hello, what can you do?"}
+#     ]
+# )
+# print(response["message"]["content"])
+
+messages = [
+    {"role": "user", "content": "안녕!"},
+]
+response = ollama.chat(model="llama3", messages=messages)
+print(response["message"]["content"])
+
+# 답변을 messages에 추가
+messages.append({"role": "assistant", "content": response["message"]["content"]})
+
+#다음 질문 추가
+messages.append({"role": "user", "content": "오늘 날씨 어때?"})
+response = ollama.chat(model="llama3", messages=messages)
+print(response["message"]["content"])
